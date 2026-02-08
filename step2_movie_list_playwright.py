@@ -213,6 +213,7 @@ def extract_movie_urls_from_list(input_lists, output_movies, checkpoint):
         if buffer_df:
             print(f"Flushing remaining {len(buffer_df)} records to disk.")
             flush_to_disk(buffer_df, output_movies)
+            mark_completed(checkpoint, "COMPLETED")
             print("Scraping Completed.")
         browser.close()
 

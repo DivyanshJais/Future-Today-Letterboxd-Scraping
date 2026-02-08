@@ -52,27 +52,47 @@ def merge_outputs(list_file, movie_list_file, movie_data_file, final_output_file
     final_df.to_csv(final_output_file, index=False)
     logging.info(f"Final merged dataset written to {final_output_file}")
 
+def is_step_complete(checkpoint_file):
+    """Checks if the checkpoint file contains the 'COMPLETED' flag."""
+    if os.path.exists(checkpoint_file):
+        with open(checkpoint_file, 'r') as f:
+            return f.read().strip() == "COMPLETED"
+    return False
 
 def main():
-    # logger1 = setup_logger("step1", "logs/step1.log")
-    # list_url_extraction(
-    #     output_file=config.LISTS_URL_CSV,
-    #     checkpoint=config.CHECKPOINT_LIST
-    # )
+    if not is_step_complete(config.CHECKPOINT_LIST):
+        print("Starting Step 1...")
+        logger1 = setup_logger("step1", "logs/step1.log")
+        list_url_extraction(
+            output_file=config.LISTS_URL_CSV,
+            checkpoint=config.CHECKPOINT_LIST
+        )
+    else:
+        print("Step 1: Skipped (Already Completed)")
 
-    # logger2 = setup_logger("step2", "logs/step2.log")
-    # extract_movie_urls_from_list(
-    #     input_lists=config.LISTS_URL_CSV,
-    #     output_movies=config.MOVIE_LIST_CSV,
-    #     checkpoint=config.CHECKPOINT_MOVIE_URL
-    # )
+    if not is_step_complete(config.CHECKPOINT_MOVIE_URL):
+        print("Starting Step 2...")
+        logger2 = setup_logger("step2", "logs/step2.log")
+        extract_movie_urls_from_list(
+            input_lists=config.LISTS_URL_CSV,
+            output_movies=config.MOVIE_LIST_CSV,
+            checkpoint=config.CHECKPOINT_MOVIE_URL
+        )
+    else:
+        print("Step 2: Skipped (Already Completed)")
 
-    # logger3 = setup_logger("step3", "logs/step3.log")
-    # extract_movie_data(
-    #     input_movie_urls=config.MOVIE_LIST_CSV,
-    #     output_movie_data=config.MOVIE_DATA_CSV,
-    #     checkpoint=config.CHECKPOINT_MOVIE_DATA
-    # )
+    if not is_step_complete(config.CHECKPOINT_MOVIE_DATA):
+        print("Starting Step 3...")
+        logger3 = setup_logger("step3", "logs/step3.log")
+        extract_movie_data(
+            input_movie_urls=config.MOVIE_LIST_CSV,
+            output_movie_data=config.MOVIE_DATA_CSV,
+            checkpoint=config.CHECKPOINT_MOVIE_DATA
+        )
+    else:
+        print("Step 3: Skipped (Already Completed)")
+
+    print("Starting Merge...")
     merge_outputs(
     list_file=config.LISTS_URL_CSV,
     movie_list_file=config.MOVIE_LIST_CSV,

@@ -445,9 +445,11 @@ def extract_movie_data(input_movie_urls, output_movie_data, checkpoint):
                 flush_to_disk(buffer_df, output_movie_data)
                 mark_completed(checkpoint, movie_url)
                 print(f'Flushed data to disk after processing {count} URLs.')
-        if buffer_df:
-            flush_to_disk(buffer_df, output_movie_data)
-            mark_completed(checkpoint, movie_url)
+    if buffer_df:
+        flush_to_disk(buffer_df, output_movie_data)
+        mark_completed(checkpoint, "COMPLETED")
+        print(f'Final flush to disk after processing {count} URLs.')
+        print('Scraping completed.')
 
         browser.close()
 

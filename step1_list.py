@@ -61,6 +61,17 @@ def mark_completed(checkpoint_path, url):
 def list_url_extraction(output_file, checkpoint):
     MAX_LIST_URLS=500
     total_extracted=0
+    if os.path.exists(output_file):
+        try:
+            existing_df = pd.read_csv(output_file)
+            total_extracted = existing_df['list_url'].nunique()
+            print(f"Resuming with {total_extracted} lists already extracted.")
+            if total_extracted >= MAX_LIST_URLS:
+                print("Already reached MAX_LIST_URLS limit.")
+                return
+        except Exception as e:
+            print(f"Error reading existing output file: {e}")
+
     buffer_df=[]
     LOGGING_FILE='scrap_error.log'
     BATCH_SIZE=100
@@ -162,6 +173,7 @@ def list_url_extraction(output_file, checkpoint):
     if buffer_df:
         print(f"Flushing remaining {len(buffer_df)} records to disk.")
         flush_to_disk(buffer_df, output_file)
+    mark_completed(checkpoint, "COMPLETED")
     print("Scraping Completed.")
 
 if __name__ == "__main__":
